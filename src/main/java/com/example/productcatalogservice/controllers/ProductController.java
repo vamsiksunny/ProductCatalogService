@@ -3,6 +3,7 @@ package com.example.productcatalogservice.controllers;
 import com.example.productcatalogservice.dto.CategoryDto;
 import com.example.productcatalogservice.dto.ProductDto;
 import com.example.productcatalogservice.exceptions.ProductNotFoundException;
+import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import com.example.productcatalogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
     private IProductService productService;
 
-    @GetMapping("/products")
+    @GetMapping
     public List<ProductDto> getAllProducts() {
         List<ProductDto> productDtos = new ArrayList<>();
         List<Product>products = productService.getAllProducts();
@@ -34,7 +36,7 @@ public class ProductController {
         return null;
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
         if (productId < 1) {
 //            throw new IllegalArgumentException("Please pass product id > 0");
@@ -49,10 +51,40 @@ public class ProductController {
         return new ResponseEntity<>(productDto, HttpStatus.OK);
     }
 
-    @PostMapping("/products")
+    @PostMapping
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
         Product product = productService.createProduct(null);
         return productDto;
+    }
+
+    @PutMapping("/{productId}")
+    ProductDto replaceProduct(@PathVariable Long productId,
+                              @RequestBody ProductDto productDto) {
+        Product response = productService.replaceProduct(productId, from(productDto));
+
+        if (response != null) {
+            return from(response);
+        }
+        return null;
+    }
+
+    private Product from(ProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setImageUrl(productDto.getImageUrl());
+
+        if (productDto.getCategoryDto() != null) {
+            Category category = new Category();
+            category.setId(productDto.getCategoryDto().getId());
+            category.setDescription(productDto.getDescription());
+            category.setName(productDto.getName());
+
+            product.setCategory(category);
+        }
+        return product;
     }
 
     private ProductDto from(Product product) {
