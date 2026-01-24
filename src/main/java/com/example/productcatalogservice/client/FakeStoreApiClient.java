@@ -61,7 +61,7 @@ public class FakeStoreApiClient {
         if (validateResponse(fakeStoreProductDtoResponseEntity)) {
             return fakeStoreProductDtoResponseEntity.getBody();
         }
-        return null
+        return null;
     }
 
     public <T> ResponseEntity<T> requestForEntity(HttpMethod httpMethod, String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
