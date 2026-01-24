@@ -14,4 +14,6 @@ public interface IProductService {
 
     Product replaceProduct(Long id, Product input);
 
+    boolean deleteProduct(Long id);
+
 }

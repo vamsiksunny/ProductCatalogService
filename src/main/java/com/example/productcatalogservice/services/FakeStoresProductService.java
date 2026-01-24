@@ -65,6 +65,11 @@ public class FakeStoresProductService implements IProductService {
         return null;
     }
 
+    @Override
+    public boolean deleteProduct(Long id) {
+        return false;
+    }
+
     public <T> ResponseEntity<T> requestForEntity(HttpMethod httpMethod, String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
         RestTemplate restTemplate = restTemplateBuilder.build();
         RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);

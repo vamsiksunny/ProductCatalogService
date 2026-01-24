@@ -7,8 +7,8 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import com.example.productcatalogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +20,7 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
+//    @Qualifier("storageProductService")
     private IProductService productService;
 
     @GetMapping
@@ -53,8 +54,19 @@ public class ProductController {
 
     @PostMapping
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
-        Product product = productService.createProduct(null);
-        return productDto;
+        Product product = productService.createProduct(from(productDto));
+        if (product != null) {
+            return productDto;
+        }
+        throw new RuntimeException("creation failed as product existed already");
+    }
+
+    @DeleteMapping("/{id}")
+    void deleteProduct(@PathVariable Long id) {
+        boolean result = productService.deleteProduct(id);
+        if (!result) {
+            throw new ProductNotFoundException("product not found");
+        }
     }
 
     @PutMapping("/{productId}")
@@ -65,7 +77,7 @@ public class ProductController {
         if (response != null) {
             return from(response);
         }
-        return null;
+        throw new ProductNotFoundException("product not found");
     }
 
     private Product from(ProductDto productDto) {
