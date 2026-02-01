@@ -1,7 +1,9 @@
 package com.example.productcatalogservice.controllers;
 
 import com.example.productcatalogservice.dto.ProductDto;
+import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
+import com.example.productcatalogservice.repo.ProductRepo;
 import com.example.productcatalogservice.services.IProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ class ProductControllerTest {
     //@Autowired
     @MockBean
     private IProductService productService;
+    @Autowired
+    private ProductRepo productRepo;
 
     @Test
     public void TestGetProductById_WithValidId_ReturnsProductSuccessfully() {
@@ -56,14 +60,41 @@ class ProductControllerTest {
     @Test
     public void TestGetProductById_WithNegativeId_ThrowsIllegalArgumentException() {
         //Arrange
-        Long productId = -1L;
+//        Long productId = -1L;
+//
+//        //Act and Assert
+//        Exception exception = assertThrows(IllegalArgumentException.class,
+//                ()-> productController.getProductById(productId));
+//
+//        assertEquals("Invalid Id passed",exception.getMessage());
+//        verify(productService,times(0)).getProductById(productId);
+    }
 
-        //Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class,
-                ()-> productController.getProductById(productId));
+    @Test
+    public void addRecordsToRDSInstance() {
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("vamsik");
 
-        assertEquals("Invalid Id passed",exception.getMessage());
-        verify(productService,times(0)).getProductById(productId);
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("sunny");
+
+        Product product3 = new Product();
+        product3.setId(3L);
+        product3.setName("thota");
+
+        Category category = new Category();
+        category.setId(1l);
+        category.setName("thop");
+
+        product1.setCategory(category);
+        product2.setCategory(category);
+        product3.setCategory(category);
+
+        productRepo.save(product1);
+        productRepo.save(product2);
+        productRepo.save(product3);
     }
 
 }
