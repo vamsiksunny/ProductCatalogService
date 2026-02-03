@@ -80,6 +80,14 @@ public class ProductController {
         throw new ProductNotFoundException("product not found");
     }
 
+    @GetMapping("/{productId}/{userId}")
+    public ProductDto getProductDetailsBasedOnUserRole(@PathVariable Long productId,@PathVariable Long userId) {
+        Product product = productService.getProductBasedOnUserRole(productId, userId);
+        if(product == null) return null;
+        return from(product);
+    }
+
+
     private Product from(ProductDto productDto) {
         Product product = new Product();
         product.setId(productDto.getId());

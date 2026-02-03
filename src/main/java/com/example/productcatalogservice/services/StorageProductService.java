@@ -1,11 +1,13 @@
 package com.example.productcatalogservice.services;
 
+import com.example.productcatalogservice.dto.UserDto;
 import com.example.productcatalogservice.models.Product;
 import com.example.productcatalogservice.models.State;
 import com.example.productcatalogservice.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,9 @@ public class StorageProductService implements IProductService {
 
     @Autowired
     ProductRepo productRepo;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public Product getProductById(Long id) {
@@ -68,5 +73,31 @@ public class StorageProductService implements IProductService {
         }
 
         return false;
+    }
+
+    @Override
+    public Product getProductBasedOnUserRole(Long productId, Long userId) {
+        Optional<Product> productOptional = productRepo.findById(productId);
+
+        if (productOptional.isPresent()) {
+            //if(product.isUnListed())
+
+            //Make call to UserService
+            //Add check for status code
+            UserDto userDto =
+                    restTemplate.getForEntity("http://UserManagementService/users/{userId}",
+                            UserDto.class,userId).getBody();
+
+            if(userDto != null) {
+                System.out.println("Call to UserService successful");
+                System.out.println(userDto.getEmail());
+
+                //Add check for user role as an admin
+
+                return productOptional.get();
+            }
+        }
+
+        return null;
     }
 }
