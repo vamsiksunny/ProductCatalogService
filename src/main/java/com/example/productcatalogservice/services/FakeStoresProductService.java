@@ -6,6 +6,8 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Primary
 public class FakeStoresProductService implements IProductService {
 
     @Autowired
@@ -28,9 +31,19 @@ public class FakeStoresProductService implements IProductService {
     @Autowired
     private FakeStoreApiClient fakeStoreApiClient;
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     @Override
     public Product getProductById(Long id) {
-        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProductById(id);
+        FakeStoreProductDto fakeStoreProductDto = null;
+        fakeStoreProductDto = (FakeStoreProductDto) redisTemplate.opsForHash().get("PRODUCTS", id);
+        if (fakeStoreProductDto == null) {
+            fakeStoreProductDto = fakeStoreApiClient.getProductById(id);
+            redisTemplate.opsForHash().put("PRODUCTS", id, fakeStoreProductDto);
+        } else {
+            System.out.println("found in redis!!!");
+        }
 
         if (fakeStoreProductDto != null) {
             return from(fakeStoreProductDto);
